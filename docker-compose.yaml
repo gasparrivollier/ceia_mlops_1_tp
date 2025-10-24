@@ -167,6 +167,7 @@ services:
       - frontend
       - backend
     environment:
+      - MLFLOW_SERVER_DISABLE_SECURITY_MIDDLEWARE=true
       - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY:-minio}
       - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_ACCESS_KEY:-minio123}
       - MLFLOW_S3_ENDPOINT_URL=http://s3:9000
