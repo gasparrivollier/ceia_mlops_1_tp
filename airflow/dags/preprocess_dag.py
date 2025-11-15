@@ -9,7 +9,7 @@ default_args = {
 with DAG(
     dag_id="preprocess_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule=None,   # ejecución manual
+    schedule="@daily",   
     catchup=False,
     default_args=default_args,
     tags=["preprocessing"],
@@ -17,5 +17,5 @@ with DAG(
 
     run_preprocess = BashOperator(
         task_id="run_preprocess",
-        bash_command="python3 /opt/airflow/dags/preprocess.py",
+        bash_command="python3 /opt/airflow/dags/scripts/preprocess.py",
     )
