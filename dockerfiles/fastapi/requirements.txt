@@ -1,2 +1,8 @@
-fastapi>=0.116
-uvicorn>=0.27
+fastapi
+uvicorn
+pandas
+mlflow
+xgboost          # No siempre necesario porque MLflow PyFunc lo
+scikit-learn     # usa internamente, pero mejor tenerlo
+boto3
+botocore
