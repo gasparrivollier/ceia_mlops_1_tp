@@ -33,7 +33,14 @@ mlflow.set_experiment("xgboost_training")
 # ------------------------------
 def model_train():
 
-    # Cargar dataset
+    # La variable de entorno ML_DEVICE debe indicar 'gpu' o 'cpu'.
+    ml_device = os.environ.get("ML_DEVICE")
+    if ml_device is None:
+        raise RuntimeError("La variable de entorno ML_DEVICE no está definida. Configura ML_DEVICE=gpu o ML_DEVICE=cpu en el archivo .env")
+    ml_device = ml_device.strip().lower()
+    if ml_device not in ("gpu", "cpu"):
+        raise RuntimeError("Valor inválido para ML_DEVICE. Usa 'gpu' o 'cpu'.")
+
     df = pd.read_parquet(DATA_PATH)
 
     X = df.drop(columns=["cantidad"])
@@ -52,19 +59,34 @@ def model_train():
     dtrain = DMatrix(X_train, label=y_train)
     dtest = DMatrix(X_test, label=y_test)
 
-    # Preparar parámetros XGBoost
-    params = {
-        "tree_method": "hist",
-        "device": "cuda",
-        "objective": "reg:squarederror",
-        "eval_metric": "rmse",
-        "learning_rate": float(best_params["learning_rate"]),
-        "max_depth": int(best_params["max_depth"]),
-        "subsample": float(best_params["subsample"]),
-        "colsample_bytree": float(best_params["colsample_bytree"]),
-        "gamma": float(best_params["gamma"]),
-        "min_child_weight": int(best_params["min_child_weight"]),
-    }
+    # Preparar parámetros XGBoost según ML_DEVICE (sin heurísticas)
+    if ml_device == "gpu":
+        params = {
+            "tree_method": "gpu_hist",
+            "device": "cuda",
+            "predictor": "gpu_predictor",
+            "objective": "reg:squarederror",
+            "eval_metric": "rmse",
+            "learning_rate": float(best_params["learning_rate"]),
+            "max_depth": int(best_params["max_depth"]),
+            "subsample": float(best_params["subsample"]),
+            "colsample_bytree": float(best_params["colsample_bytree"]),
+            "gamma": float(best_params["gamma"]),
+            "min_child_weight": int(best_params["min_child_weight"]),
+        }
+    else:
+        params = {
+            "tree_method": "hist",
+            "device": "cpu",
+            "objective": "reg:squarederror",
+            "eval_metric": "rmse",
+            "learning_rate": float(best_params["learning_rate"]),
+            "max_depth": int(best_params["max_depth"]),
+            "subsample": float(best_params["subsample"]),
+            "colsample_bytree": float(best_params["colsample_bytree"]),
+            "gamma": float(best_params["gamma"]),
+            "min_child_weight": int(best_params["min_child_weight"]),
+        }
 
     num_boost_round = int(best_params["n_estimators"])
     evals_result = {}

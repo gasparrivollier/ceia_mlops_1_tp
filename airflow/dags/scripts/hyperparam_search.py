@@ -11,7 +11,14 @@ MODEL_PARAMS_PATH = "/opt/airflow/dags/models/best_model_params.json"
 
 def hyperparam_search():
 
-    # 1️⃣ Cargar dataset
+    # La variable de entorno ML_DEVICE debe indicar 'gpu' o 'cpu'.
+    ml_device = os.environ.get("ML_DEVICE")
+    if ml_device is None:
+        raise RuntimeError("La variable de entorno ML_DEVICE no está definida. Configura ML_DEVICE=gpu o ML_DEVICE=cpu en el archivo .env")
+    ml_device = ml_device.strip().lower()
+    if ml_device not in ("gpu", "cpu"):
+        raise RuntimeError("Valor inválido para ML_DEVICE. Usa 'gpu' o 'cpu'.")
+
     df = pd.read_parquet(DATA_PATH)
 
     # 2️⃣ Definir variables
@@ -27,15 +34,24 @@ def hyperparam_search():
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # 4️⃣ Definir el modelo con GPU
-    xgb_gpu = XGBRegressor(
-        tree_method='hist',
-        predictor='gpu_predictor',
-        device='cuda',
-        n_jobs=-1,
-        eval_metric='rmse',
-        verbosity=1
-    )
+    # 4️⃣ Definir el estimador según ML_DEVICE (sin heurísticas)
+    if ml_device == "gpu":
+        xgb_est = XGBRegressor(
+            tree_method='gpu_hist',
+            predictor='gpu_predictor',
+            device='cuda',
+            n_jobs=1,
+            eval_metric='rmse',
+            verbosity=1
+        )
+    else:
+        xgb_est = XGBRegressor(
+            tree_method='hist',
+            device='cpu',
+            n_jobs=max(1, (os.cpu_count() or 1) - 1),
+            eval_metric='rmse',
+            verbosity=1
+        )
 
     # 5️⃣ Espacio de búsqueda
     param_dist = {
@@ -49,17 +65,21 @@ def hyperparam_search():
     }
 
     # 6️⃣ Búsqueda aleatoria
+    # Elegir n_jobs para RandomizedSearchCV (si GPU: n_jobs=1)
+    # Para evitar problemas con multiprocessing en contenedores limitados,
+    # ejecutamos secuencialmente en modo debug: n_jobs=1 y menos iteraciones.
     random_search = RandomizedSearchCV(
-        estimator=xgb_gpu,
+        estimator=xgb_est,
         param_distributions=param_dist,
-        n_iter=30,
+        n_iter=8,
         scoring='r2',
         cv=3,
         verbose=2,
-        n_jobs=-1
+        n_jobs=1,
+        random_state=42
     )
 
-    print("Ejecutando búsqueda aleatoria en GPU...")
+    print(f"Ejecutando búsqueda aleatoria en modo secuencial de debug (ML_DEVICE={ml_device}, n_iter=8)...")
     random_search.fit(X_train_scaled, y_train)
 
     # 7️⃣ Guardar hiperparámetros
