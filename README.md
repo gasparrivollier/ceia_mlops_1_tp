@@ -2,16 +2,16 @@
 
 ## Trabajo práctico final
 
-Este repositorio contiene una implementación completa de un **pipeline
-MLOps** para entrenar, versionar, orquestar y desplegar un modelo que
-predice la **probabilidad de ocurrencia de delitos en la Ciudad de
-Buenos Aires**.
+Este repositorio contiene una implementación completa de un pipeline
+MLOps para entrenar, versionar, orquestar y desplegar un modelo que
+predice la probabilidad de ocurrencia de delitos en la Ciudad de
+Buenos Aires.
 
-El proyecto incluye una arquitectura basada en **Docker Compose** que
-integra: - **Airflow** para orquestación de pipelines. - **MLflow** para
-tracking de experimentos y gestión de modelos. - **FastAPI** para servir
-el modelo entrenado. - **MinIO** como almacenamiento tipo S3 para
-artefactos. - **PostgreSQL** para Airflow y almacenamiento auxiliar. -
+El proyecto incluye una arquitectura basada en Docker Compose que
+integra: - Airflow para orquestación de pipelines. - MLflow para
+tracking de experimentos y gestión de modelos. - FastAPI para servir
+el modelo entrenado. - MinIO como almacenamiento tipo S3 para
+artefactos. - PostgreSQL para Airflow y almacenamiento auxiliar. -
 **Valkey** como backend clave-valor.
 
 Toda la infraestructura se levanta automáticamente mediante
@@ -20,7 +20,7 @@ inferencia del modelo.
 
 ------------------------------------------------------------------------
 
-## 📂 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```
 CEIA_MLOPS_1_TP
@@ -51,7 +51,7 @@ CEIA_MLOPS_1_TP
 
 ------------------------------------------------------------------------
 
-## ⚙️ Arquitectura Técnica
+## Arquitectura Técnica
 
 ### **Airflow**
 
@@ -92,7 +92,7 @@ CEIA_MLOPS_1_TP
 
 ------------------------------------------------------------------------
 
-## 🚀 Puesta en Marcha
+## Puesta en Marcha
 
 ### **1. Clonar el repositorio**
 
@@ -117,7 +117,7 @@ Ingresar a Airflow y activar el DAG ` `.
 
 ------------------------------------------------------------------------
 
-## 📊 Datos y Modelo
+## Datos y Modelo
 
 El proyecto utiliza datos públicos de criminalidad histórica de Buenos
 Aires.\
@@ -131,7 +131,7 @@ El modelo final se publica automáticamente para que FastAPI lo consuma.
 
 ------------------------------------------------------------------------
 
-## 🏗️ Mejoras Futuras/Pendientes
+## Mejoras Futuras/Pendientes
 
 -   Utilizar storage s3 de minio para almacenar dataset. Hoy lo monta como disco docker. De esta forma el flujo podría consistir en ir agregando esos archivos en el storage para que el modelo se reentrene. 
 -   Validación de que MLFlow esté tomando modelos correctos y dejando estos "operativos" al disponer en api. Esto debe involucrar configuración desde MLFlow y también que modelo levanta FastAPI. 
@@ -140,12 +140,12 @@ El modelo final se publica automáticamente para que FastAPI lo consuma.
 ------------------------------------------------------------------------
 
 ## Integrantes 
-- 
-- 
-- 
-- 
-- 
--  Rivollier, Gaspar
+ 	Josmar Brazón
+ 	Gaspar Rivollier
+ 	Martín Andrés
+ 	Martín Gonzalez
+ 	Juan Cruz
+ 	Agustín Maglione
 
 Esta documentación fue generada con asistencia de LLMs, ajustada y validada posteriormente. 
 
