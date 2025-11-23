@@ -11,8 +11,7 @@ El proyecto incluye una arquitectura basada en Docker Compose que
 integra: - Airflow para orquestación de pipelines. - MLflow para
 tracking de experimentos y gestión de modelos. - FastAPI para servir
 el modelo entrenado. - MinIO como almacenamiento tipo S3 para
-artefactos. - PostgreSQL para Airflow y almacenamiento auxiliar. -
-**Valkey** como backend clave-valor.
+artefactos. - PostgreSQL para Airflow y almacenamiento auxiliar.
 
 Toda la infraestructura se levanta automáticamente mediante
 `docker-compose` y se organiza alrededor de un flujo de entrenamiento e
