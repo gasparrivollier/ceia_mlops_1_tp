@@ -22,6 +22,7 @@ inferencia del modelo.
 
 ## 📂 Estructura del Repositorio
 
+```
 CEIA_MLOPS_1_TP
 ├── airflow/                     
 │   ├── config/
@@ -46,6 +47,7 @@ CEIA_MLOPS_1_TP
 │   ├── mlflow/
 │   └── postgres/
 ├── notebook_example/
+```
 
 ------------------------------------------------------------------------
 
