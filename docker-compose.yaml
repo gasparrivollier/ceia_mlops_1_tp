@@ -409,6 +409,23 @@ services:
       _PIP_ADDITIONAL_REQUIREMENTS: ''
     user: "0:0"
 
+  frontend:
+    build:
+      context: ./frontend             
+      dockerfile: ../dockerfiles/frontend/Dockerfile 
+    container_name: ui_mapa_robos
+    profiles:     
+      - all
+    ports:
+      - "5173:5173"                    # Puerto accesible desde tu navegador
+    volumes:
+      - ./frontend:/app                # Sincroniza cambios de código en tiempo real
+      - /app/node_modules             # Evita conflictos con node_modules locales
+    environment:
+      - VITE_API_URL=http://localhost:8800
+    depends_on:
+      - fastapi                       
+
 networks:
   frontend:
     driver: bridge

@@ -1,10 +1,23 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mlflow
 import mlflow.pyfunc
 import pandas as pd
 
 app = FastAPI(title="XGBoost MLflow API", version="1.0")
+
+# ----------------------------
+# CONFIGURACIÓN CORS
+# Esto se deberia ajustar en produccion, por ahora lo dejamos todo libre
+# ----------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir cualquier origen 
+    allow_credentials=True,
+    allow_methods=["*"],  # Permitir todos los métodos
+    allow_headers=["*"],  # Permitir todos los headers
+)
 
 # ----------------------------
 # CONFIG MLflow
@@ -17,7 +30,7 @@ try:
     model = mlflow.pyfunc.load_model(MODEL_URI)
     print(f"Modelo cargado correctamente desde MLflow: {MODEL_URI}")
 except Exception as e:
-    print(f"❌ Error cargando modelo desde MLflow: {e}")
+    print(f"Error cargando modelo desde MLflow: {e}")
     model = None
 
 
