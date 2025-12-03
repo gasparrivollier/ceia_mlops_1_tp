@@ -5,29 +5,40 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
 from scipy.stats import randint, uniform
+import mlflow
+import mlflow.xgboost
 
 DATA_PATH = "/opt/airflow/dags/data/processed.parquet"
 MODEL_PARAMS_PATH = "/opt/airflow/dags/models/best_model_params.json"
+MLFLOW_TRACKING_URI = "http://mlflow:5000" 
+MLFLOW_EXPERIMENT_NAME = "XGBoost_Param_Tuning"
 
 def hyperparam_search():
 
-    # 1️⃣ Cargar dataset
+    # Defino trackeo en MLflow
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+    
+    # Habilito logging automático en MLflow.
+    # log_models=False para guardar resultados de cada corrida 
+    mlflow.sklearn.autolog(log_models=False, log_input_examples=True)
+
+    # Cargar dataset
     df = pd.read_parquet(DATA_PATH)
 
-    # 2️⃣ Definir variables
+    # Definir variables
     X = df.loc[:, df.columns != 'cantidad']
     y = df['cantidad']
 
-    # 3️⃣ Train-test split + escalado
+    # Train-test split + escalado
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
 
-    # 4️⃣ Definir el modelo con GPU
+    # Definir el modelo con GPU
     xgb_gpu = XGBRegressor(
         tree_method='hist',
         predictor='gpu_predictor',
@@ -37,7 +48,7 @@ def hyperparam_search():
         verbosity=1
     )
 
-    # 5️⃣ Espacio de búsqueda
+    # Espacio de búsqueda
     param_dist = {
         'n_estimators': randint(400, 1200),
         'learning_rate': uniform(0.01, 0.2),
@@ -56,15 +67,15 @@ def hyperparam_search():
         scoring='r2',
         cv=3,
         verbose=2,
-        n_jobs=-1
+        n_jobs=1
     )
 
     print("Ejecutando búsqueda aleatoria en GPU...")
     random_search.fit(X_train_scaled, y_train)
 
-    # 7️⃣ Guardar hiperparámetros
+    # Guardar hiperparámetros
     best_params = random_search.best_params_
-
+    
     with open(MODEL_PARAMS_PATH, 'w') as f:
         json.dump(best_params, f)
 

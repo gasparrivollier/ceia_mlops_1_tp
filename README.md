@@ -97,7 +97,7 @@ CEIA_MLOPS_1_TP
 
 -   Base persistente para Airflow.
 
-## **Frontend**
+### **Frontend**
 
 -   Aplicación web para disponibilizar el uso de la API a traves de una interfaz.
 
