@@ -35,6 +35,13 @@ CEIA_MLOPS_1_TP
 │   ├── logs/
 │   ├── plugins/    
 │   └── secrets/
+├── frontend/
+│   ├── public/
+│   ├── node_modules/
+│   ├── src/ 
+│   ├── vite.config.js
+│   ├── package.json
+│   ├── index.html
 ├── dockerfiles/
 │   ├── airflow/
 │   │   ├── Dockerfile
@@ -45,6 +52,8 @@ CEIA_MLOPS_1_TP
 │   │   └── requirements.txt
 │   ├── mlflow/
 │   └── postgres/
+|   └── frontend/
+|        └── Dockerfile
 ├── notebook_example/
 ```
 
@@ -88,6 +97,9 @@ CEIA_MLOPS_1_TP
 
 -   Base persistente para Airflow.
 
+## **Frontend**
+
+-   Aplicación web para disponibilizar el uso de la API a traves de una interfaz.
 
 ------------------------------------------------------------------------
 
@@ -106,9 +118,12 @@ cd ceia_mlops_1_tp
 docker-compose --profile all up
 ```
 
-Esto inicia: - Airflow en `http://localhost:8080` - MLflow en
-`http://localhost:5000` - API en `http://localhost:8000` - MinIO en
-`http://localhost:9000`
+Esto inicia: 
+- Airflow en `http://localhost:8080` 
+- MLflow en `http://localhost:5000`
+- API en `http://localhost:8000` 
+- MinIO en `http://localhost:9000`
+- App Web en `http://localhost:5173`
 
 ### **3. Ejecutar el pipeline**
 
@@ -134,7 +149,6 @@ El modelo final se publica automáticamente para que FastAPI lo consuma.
 
 -   Utilizar storage s3 de minio para almacenar dataset. Hoy lo monta como disco docker. De esta forma el flujo podría consistir en ir agregando esos archivos en el storage para que el modelo se reentrene. 
 -   Validación de que MLFlow esté tomando modelos correctos y dejando estos "operativos" al disponer en api. Esto debe involucrar configuración desde MLFlow y también que modelo levanta FastAPI. 
--   UI para facilitar utilización de modelos: Hoy barrios por ejemplo son un ID y no se sabe cual es cual. 
 
 ------------------------------------------------------------------------
 
