@@ -188,6 +188,9 @@ services:
     restart: always
     build: "./dockerfiles/fastapi"
     image: backend_fastapi
+    volumes:
+      - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
+      - ${AIRFLOW_PROJ_DIR:-.}/dags/data:/opt/airflow/dags/data
     container_name: fastapi
     profiles:
       - all
