@@ -1,6 +1,13 @@
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from datetime import datetime
+import sys
+
+sys.path.append("/opt/airflow/dags/scripts")
+
+from preprocess import load_and_process as preprocess_main
+from generate_baseline import main as baseline_main
+
 
 default_args = {
     "owner": "airflow",
@@ -9,23 +16,20 @@ default_args = {
 with DAG(
     dag_id="preprocess_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",   # corre una vez por día
+    schedule_interval="@daily",
     catchup=False,
     default_args=default_args,
     tags=["preprocessing"],
 ) as dag:
 
-    # 1) Preprocesamiento: genera processed.parquet
-    run_preprocess = BashOperator(
+    run_preprocess = PythonOperator(
         task_id="run_preprocess",
-        bash_command="python3 /opt/airflow/dags/scripts/preprocess.py",
+        python_callable=preprocess_main,
     )
 
-    # 2) Generar baseline a partir de processed.parquet
-    generate_baseline = BashOperator(
+    generate_baseline = PythonOperator(
         task_id="generate_baseline",
-        bash_command="python3 /opt/airflow/dags/scripts/generate_baseline.py",
+        python_callable=baseline_main,
     )
 
-    # Dependencias: primero preprocesar, luego baseline
     run_preprocess >> generate_baseline
