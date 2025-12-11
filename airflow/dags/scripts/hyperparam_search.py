@@ -59,7 +59,7 @@ def hyperparam_search():
         'min_child_weight': randint(1, 10)
     }
 
-    # 6️⃣ Búsqueda aleatoria
+    # Búsqueda aleatoria
     random_search = RandomizedSearchCV(
         estimator=xgb_gpu,
         param_distributions=param_dist,
