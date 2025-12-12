@@ -18,6 +18,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule="@daily",   
     catchup=False,
+    max_active_runs=1,
     default_args=default_args,
     tags=["preprocessing"],
 ) as dag:

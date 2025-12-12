@@ -28,7 +28,7 @@ def hyperparam_search():
 
     # Definir variables 
     X = df.loc[:, df.columns != 'cantidad']
-    y = df['cantidad']
+    y = df['cantidad'].to_numpy()
 
     # Train-test split + escalado
     X_train, X_test, y_train, y_test = train_test_split(
@@ -38,11 +38,10 @@ def hyperparam_search():
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
 
-    # Definir el modelo con GPU
-    xgb_gpu = XGBRegressor(
+    # Definir el modelo sin GPU
+    xgb_model = XGBRegressor(
         tree_method='hist',
-        predictor='gpu_predictor',
-        device='cuda',
+        device='cpu',
         n_jobs=-1,
         eval_metric='rmse',
         verbosity=1
@@ -61,7 +60,7 @@ def hyperparam_search():
 
     # Búsqueda aleatoria
     random_search = RandomizedSearchCV(
-        estimator=xgb_gpu,
+        estimator=xgb_model,
         param_distributions=param_dist,
         n_iter=30,
         scoring='r2',
@@ -70,16 +69,27 @@ def hyperparam_search():
         n_jobs=1
     )
 
-    print("Ejecutando búsqueda aleatoria en GPU...")
-    random_search.fit(X_train_scaled, y_train)
+    print("Ejecutando búsqueda de hyperparametros...")
 
-    # Guardar hiperparámetros
-    best_params = random_search.best_params_
-    
-    with open(MODEL_PARAMS_PATH, 'w') as f:
-        json.dump(best_params, f)
+    # Run padre en MLflow
 
-    print(f"✔️ Mejores hiperparámetros guardados en {MODEL_PARAMS_PATH}")
+    with mlflow.start_run(run_name="xgb_hyperparam_search") as parent_run:
+
+        random_search.fit(X_train_scaled, y_train)
+
+        # Extraer hiperparámetros y score
+        best_params = random_search.best_params_
+        best_score = random_search.best_score_
+
+        # Loguear los mejores hiperparámetros y score
+        mlflow.log_params(best_params)
+        mlflow.log_metric("best_cv_r2", best_score)
+        
+         # Guardar hiperparámetros en JSON
+        with open(MODEL_PARAMS_PATH, 'w') as f:
+            json.dump(best_params, f)
+
+        print(f"✔️ Mejores hiperparámetros guardados en {MODEL_PARAMS_PATH}")
 
     return best_params
 
