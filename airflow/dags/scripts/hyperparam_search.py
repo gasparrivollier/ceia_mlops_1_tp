@@ -26,7 +26,7 @@ def hyperparam_search():
     # Cargar dataset
     df = pd.read_parquet(DATA_PATH)
 
-    # Definir variables
+    # Definir variables 
     X = df.loc[:, df.columns != 'cantidad']
     y = df['cantidad']
 

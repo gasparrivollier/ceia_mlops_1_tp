@@ -1,14 +1,28 @@
 import os
 import pandas as pd
+import s3fs
+
+# Path en S3
+DATASET_PATH = "s3://dataset/"
 
 # Path dentro del contenedor Airflow
-DATA_DIR = "/opt/airflow/dataset"
 OUTPUT_PATH = "/opt/airflow/dags/data/processed.parquet"
 
 def load_and_process():
 
+    # Configuración S3/MinIO
+    s3_options = {
+        "key": os.environ.get("AWS_ACCESS_KEY_ID"),
+        "secret": os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        "client_kwargs": {
+            "endpoint_url": os.environ.get("AWS_ENDPOINT_URL_S3")
+        }
+    }
+
+    fs = s3fs.S3FileSystem(**s3_options)
+
     # Detecta automáticamente todos los CSV del dataset
-    csv_files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR) if f.endswith(".csv")]
+    csv_files = [f"s3://{f}" for f in fs.ls("dataset") if f.endswith(".csv")]
     print(f"Se encontraron {len(csv_files)} archivos CSV.")
 
     df_list = []

@@ -16,7 +16,7 @@ default_args = {
 with DAG(
     dag_id="preprocess_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",   # o schedule_interval="@daily" según tu versión
+    schedule="@daily",   
     catchup=False,
     default_args=default_args,
     tags=["preprocessing"],

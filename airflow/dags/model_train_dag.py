@@ -15,7 +15,7 @@ default_args = {
 with DAG(
     dag_id="training_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule_interval="@daily",
+    schedule="@daily",
     catchup=False,
     default_args=default_args,
     tags=["modeling"],

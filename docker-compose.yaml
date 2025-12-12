@@ -51,7 +51,6 @@ x-airflow-common: &airflow-common
     - ${AIRFLOW_PROJ_DIR:-./airflow}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-./airflow}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-./airflow}/secrets:/opt/secrets
-    - ${AIRFLOW_PROJ_DIR:-./airflow}/dataset:/opt/airflow/dataset
     
   networks:
     - frontend
@@ -143,12 +142,16 @@ services:
       - s3
     networks:
       - backend
+    volumes:
+      - ./dataset:/dataset
     entrypoint: >
       /bin/sh -c '
       sleep 5;
       /usr/bin/mc alias set s3 http://s3:9000 ${MINIO_ACCESS_KEY:-minio} ${MINIO_SECRET_ACCESS_KEY:-minio123};
-      /usr/bin/mc mb s3/${MLFLOW_BUCKET_NAME:-mlflow};
-      /usr/bin/mc mb s3/${DATA_REPO_BUCKET_NAME:-data};
+      /usr/bin/mc mb s3/${MLFLOW_BUCKET_NAME:-mlflow} || true;
+      /usr/bin/mc mb s3/${DATA_REPO_BUCKET_NAME:-data} || true;
+      /usr/bin/mc mb s3/${DATASET_BUCKET_NAME:-dataset} || true;
+      /usr/bin/mc cp --recursive /dataset/ s3/${DATASET_BUCKET_NAME:-dataset}/ || true;
       exit 0;
       '
 
