@@ -20,7 +20,7 @@
   left: 20px;
   width: 300px;
   background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
+  padding: 25px;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   z-index: 1000; /* Asegura que esté sobre el mapa */
@@ -46,7 +46,7 @@
 
 .form-group select, 
 .form-group input {
-  width: 100%;
+  width: 98%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -74,19 +74,13 @@ button.predict-btn:hover:not(:disabled) {
 }
 
 .result-box {
-  margin-top: 20px;
+  margin: 20px;
   padding: 15px;
   border-radius: 6px;
   text-align: center;
   color: white;
   font-weight: bold;
 }
-
-/* App.css */
-
-/* ... tus estilos anteriores ... */
-
-/* Truco visual: El mapa base se ve en blanco y negro y un poco transparente */
 .leaflet-tile-pane {
   filter: grayscale(100%) brightness(0.7);
   opacity: 0.6;
