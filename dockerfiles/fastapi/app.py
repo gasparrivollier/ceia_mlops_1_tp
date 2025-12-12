@@ -112,8 +112,15 @@ def compute_risk_metrics(dia: int, franja: int, pred_cantidad: float):
 @app.post("/predict")
 def predict(payload: InputData):
 
+    global model
+    
     if model is None:
-        raise HTTPException(status_code=503, detail="Modelo no disponible.")
+        try:
+            model = mlflow.pyfunc.load_model(MODEL_URI)
+            print(f"Modelo cargado correctamente desde MLflow: {MODEL_URI}")
+        except Exception as e:
+            print(f"Error cargando modelo desde MLflow: {e}")
+            raise HTTPException(status_code=503, detail="Modelo no disponible.")
 
     # Convertir a dataframe
     df = pd.DataFrame([payload.dict()])
