@@ -81,6 +81,15 @@ button.predict-btn:hover:not(:disabled) {
   color: white;
   font-weight: bold;
 }
+.error-message {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fdecea;
+  color: #c62828;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
 .leaflet-tile-pane {
   filter: grayscale(100%) brightness(0.7);
   opacity: 0.6;

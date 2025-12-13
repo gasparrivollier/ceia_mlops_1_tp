@@ -15,6 +15,7 @@ function App() {
   const [inputs, setInputs] = useState({ dia: 'Lunes', hora: '20:00' });
   const [prediccion, setPrediccion] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   // Dictionario para mapear días a números
   const diasMap = {
@@ -77,6 +78,7 @@ function App() {
 
   const handlePredict = async () => {
     setLoading(true);
+    setErrorMsg(null);
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8800';
 
     // Preparamos datos para la API
@@ -92,15 +94,14 @@ function App() {
             dia: parseInt(diaNumero, 10),             
             franja: parseInt(horaSolo, 10)            
         })
-      });
-
-      if (!response.ok) throw new Error("Error API");
+      });  
+      if (!response.ok) throw new Error(response.detail || 'Error en la respuesta de la API');
       const data = await response.json();
       setPrediccion(data);
+      setErrorMsg(null);
 
     } catch (error) {
-      console.error(error);
-      alert("No se pudo conectar con el servidor de predicción.");
+      setErrorMsg("No pudimos conectar con el servicio de predicción.");
     } finally {
       setLoading(false);
     }
@@ -145,6 +146,10 @@ function App() {
         >
           {loading ? "Calculando..." : "Predecir Riesgo"}
         </button>
+
+        {errorMsg && (
+          <p className="error-message">{errorMsg}</p>
+        )}
 
         {prediccion && (
           <div>
