@@ -64,13 +64,14 @@ CEIA_MLOPS_1_TP
 
 ### **Airflow**
 
--   Contiene principalmente 2 DAGs. Estos realizan las siguientes tareas:
+-   Contiene principalmente 3 DAGs. Estos realizan las siguientes tareas:
     -   Ingesta y preparación de datos.
     -   Entrenamiento del modelo (`train.py`).
     -   Registro automático en MLflow.
     -   Publicación del modelo para inferencia.
+    -   Generación de baseline utilizado para cálculos.
 
-    Los dos dags son:
+    Los tres dags son:
     - preprocess_dag.py: Encargado de importar el dataset desde los .csv. Realiza el preprocesamiento de los datos y los deja disponibles en el repositorio para que los pueda tomar model_train_dag.py. Ejecuta diariamente. 
     - model_train_dag.py: Realiza el entrenamiento del modelo XGBoost. Registra el entrenamiento, modelo y resultados de hiperparámetros en MLFlow. Ejecuta diariamente.
     - generate_baseline.py: Realiza preprocessing y genera .parquet de baseline que utiliza la API para cálculos de riesgos relativos. Ejecuta mensualmente.
@@ -103,7 +104,7 @@ CEIA_MLOPS_1_TP
 
 ### **Frontend**
 
--   Aplicación web para disponibilizar el uso de la API a traves de una interfaz.
+-   Aplicación web para disponibilizar el uso de la API a traves de una interfaz. Basado en Vite React.
 
 ------------------------------------------------------------------------
 
@@ -140,12 +141,13 @@ Esto inicia:
 
 ## Datos y Modelo
 
-El proyecto utiliza datos públicos de criminalidad histórica de Buenos
-Aires.\
-El pipeline incluye: - Transformaciones básicas y agregaciones
-temporales. - Entrenamiento de un modelo predictivo (normalmente un
-algoritmo de clasificación probabilística). - Generación del score de
-riesgo por zona y franja horaria.
+El proyecto utiliza datos públicos de [criminalidad histórica de Buenos
+Aires](https://data.buenosaires.gob.ar/dataset/delitos).\
+
+El pipeline incluye: 
+- Transformaciones básicas y agregaciones temporales. 
+- Entrenamiento de un modelo predictivo (normalmente un algoritmo de clasificación probabilística). 
+- Generación del score de riesgo por zona y franja horaria.
 
 El modelo final se publica automáticamente para que FastAPI lo consuma.
 
@@ -159,5 +161,5 @@ El modelo final se publica automáticamente para que FastAPI lo consuma.
  	Juan Cruz
  	Agustín Maglione
 
-Esta documentación fue generada con asistencia de LLMs, ajustada y validada posteriormente. 
+
 
