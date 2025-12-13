@@ -15,12 +15,11 @@ integra:
 - FastAPI para servir el modelo entrenado. 
 - MinIO como almacenamiento tipo S3 para artefactos. 
 - PostgreSQL para Airflow y almacenamiento auxiliar.
+- Vite React para interfáz gráfica.
 
 Toda la infraestructura se levanta automáticamente mediante
 `docker-compose` y se organiza alrededor de un flujo de entrenamiento e
 inferencia del modelo.
-
-------------------------------------------------------------------------
 
 ## Estructura del Repositorio
 
@@ -60,7 +59,6 @@ CEIA_MLOPS_1_TP
 |        └── Dockerfile
 ```
 
-------------------------------------------------------------------------
 
 ## Arquitectura Técnica
 
@@ -114,7 +112,6 @@ CEIA_MLOPS_1_TP
 
 ![arq_diag](.attachments/high_level_diagram.png)
 
-------------------------------------------------------------------------
 
 ## Puesta en Marcha
 
@@ -145,7 +142,6 @@ Esto inicia:
 - Además, se puede utilizar el modelo vía API (FastAPI) en el endpoint `predict`.
 - Para usuarios menos técnicos, se puede utilizar la interfáz gráfica http://localhost:5173/ donde se selecciona el barrio, día y franja horaria para obtener el nivel de riesgo estimado para los parámetros. 
 
-------------------------------------------------------------------------
 
 ## Datos y Modelo
 
@@ -160,7 +156,6 @@ El pipeline incluye:
 
 El modelo final se publica automáticamente para que FastAPI lo consuma.
 
-------------------------------------------------------------------------
 
 ## Integrantes 
  	Josmar Brazón
