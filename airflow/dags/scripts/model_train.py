@@ -19,7 +19,7 @@ DATA_PATH = "/opt/airflow/dags/data/processed.parquet"
 MODEL_PARAMS_PATH = "/opt/airflow/dags/models/best_model_params.json"
 EVALS_PATH = "/opt/airflow/dags/models/best_model_evals.json"
 
-# (opcional: copiar modelo local)
+# (copiar modelo local)
 MODEL_PATH = "/opt/airflow/dags/models/best_model.xgb"
 
 # ------------------------------
