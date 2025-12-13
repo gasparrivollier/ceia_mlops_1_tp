@@ -9,14 +9,14 @@ app = FastAPI(title="XGBoost MLflow API", version="1.0")
 
 # ----------------------------
 # CONFIGURACIÓN CORS
-# Esto se deberia ajustar en produccion, por ahora lo dejamos todo libre
+# Esto se deberia ajustar en produccion, por ahora lo dejamos todo libre
 # ----------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir cualquier origen 
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Permitir todos los métodos
-    allow_headers=["*"],  # Permitir todos los headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ----------------------------
@@ -26,24 +26,34 @@ mlflow.set_tracking_uri("http://mlflow:5000")
 
 MODEL_URI = "models:/xgb_cantidad@latest"
 
-try:
-    model = mlflow.pyfunc.load_model(MODEL_URI)
-    print(f"Modelo cargado correctamente desde MLflow: {MODEL_URI}")
-except Exception as e:
-    print(f"Error cargando modelo desde MLflow: {e}")
-    model = None
+model = None
 
+def load_model():
+    """
+    Carga o recarga el modelo desde MLflow
+    """
+    global model
+    try:
+        model = mlflow.pyfunc.load_model(MODEL_URI)
+        print(f"✅ Modelo cargado correctamente desde MLflow: {MODEL_URI}")
+        return True
+    except Exception as e:
+        print(f"❌ Error cargando modelo desde MLflow: {e}")
+        model = None
+        return False
+
+
+# Cargar el modelo al iniciar la API
+load_model()
 
 # ----------------------------
 # Validación del input
 # ----------------------------
 class InputData(BaseModel):
     """Define automáticamente los features esperados."""
-    # ⚠️ REEMPLAZAR con tus features reales:
     dia: int
     franja: int
     barrio: int
-    # ... agregar todos los features
 
 
 # ----------------------------
@@ -55,25 +65,45 @@ def predict(payload: InputData):
     if model is None:
         raise HTTPException(status_code=503, detail="Modelo no disponible.")
 
-    # Convertir a dataframe
     df = pd.DataFrame([payload.dict()])
 
     try:
         df = df.astype({
             "dia": "int32",
-            "franja": "float64",   # MLflow registró double → float64
+            "franja": "float64",
             "barrio": "int32"
         })
         pred = model.predict(df)
         return {"prediction": float(pred[0])}
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error haciendo inferencia: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error haciendo inferencia: {e}"
+        )
 
+# ----------------------------
+# ENDPOINT HOT-RELOAD
+# ----------------------------
+@app.post("/reload-model")
+def reload_model():
+    """
+    Recarga el modelo sin reiniciar el servicio
+    """
+    ok = load_model()
+    if not ok:
+        raise HTTPException(
+            status_code=500,
+            detail="No se pudo recargar el modelo desde MLflow."
+        )
+    return {"status": "ok", "message": "Modelo recargado correctamente"}
 
+# ----------------------------
+# HEALTHCHECK
+# ----------------------------
 @app.get("/health")
 def health():
-    """
-    Health check para que Kubernetes / Docker Compose validen disponibilidad.
-    """
-    return {"status": "ok", "model_loaded": model is not None}
+    return {
+        "status": "ok",
+        "model_loaded": model is not None
+    }

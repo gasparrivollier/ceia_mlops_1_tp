@@ -8,18 +8,27 @@ from scipy.stats import randint, uniform
 import mlflow
 import mlflow.xgboost
 
+# agregado
+from mlflow.tracking import MlflowClient
+
+
 DATA_PATH = "/opt/airflow/dags/data/processed.parquet"
 MODEL_PARAMS_PATH = "/opt/airflow/dags/models/best_model_params.json"
 MLFLOW_TRACKING_URI = "http://mlflow:5000" 
 MLFLOW_EXPERIMENT_NAME = "XGBoost_Param_Tuning"
 
+# agregado
+REGISTERED_MODEL_NAME = "xgb_cantidad"
+MODEL_ALIAS = "latest"
+
+
 def hyperparam_search():
 
-    # Defino trackeo en MLflow
+    # Defino trackeo en MLflow
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
     
-    # Habilito logging automático en MLflow.
+    # Habilito logging automático en MLflow.
     # log_models=False para guardar resultados de cada corrida 
     mlflow.sklearn.autolog(log_models=False, log_input_examples=True)
 
@@ -79,9 +88,32 @@ def hyperparam_search():
     with open(MODEL_PARAMS_PATH, 'w') as f:
         json.dump(best_params, f)
 
-    print(f"✔️ Mejores hiperparámetros guardados en {MODEL_PARAMS_PATH}")
+    print(f"Mejores hiperparámetros guardados en {MODEL_PARAMS_PATH}")
+
+    
+    # registro del mejor modelo en mlflow
+    best_model = random_search.best_estimator_
+
+    with mlflow.start_run(run_name="register_best_model") as run:
+        model_info = mlflow.xgboost.log_model(
+            xgb_model=best_model,
+            artifact_path="model",
+            registered_model_name=REGISTERED_MODEL_NAME
+        )
+
+        # seteo del alias latest
+        try:
+            client = MlflowClient()
+            client.set_registered_model_alias(
+                name=REGISTERED_MODEL_NAME,
+                alias=MODEL_ALIAS,
+                version=model_info.registered_model_version
+            )
+        except Exception as e:
+            print(f"No se pudo setear alias {MODEL_ALIAS}: {e}")
 
     return best_params
+
 
 if __name__ == "__main__":
     hyperparam_search()
