@@ -31,6 +31,7 @@ CEIA_MLOPS_1_TP
 │   |   ├── scripts/   
 │   |   ├── model_train_dag.py  
 │   |   ├── preprocess_dag.py                    
+│   |   ├── generate_baseline_dag.py
 │   ├── dataset/                 
 │   ├── logs/
 │   ├── plugins/    
@@ -70,8 +71,11 @@ CEIA_MLOPS_1_TP
     -   Publicación del modelo para inferencia.
 
     Los dos dags son:
-    - preprocess_dag.py: Encargado de importar el dataset desde los .csv. Realiza el preprocesamiento de los datos y los deja disponibles en el repositorio para que los pueda tomar model_train_dag.py.
-    - model_train_dag.py: Realiza el entrenamiento del modelo XGBoost. Registra el entrenamiento, modelo y resultados de hiperparámetros en MLFlow. 
+    - preprocess_dag.py: Encargado de importar el dataset desde los .csv. Realiza el preprocesamiento de los datos y los deja disponibles en el repositorio para que los pueda tomar model_train_dag.py. Ejecuta diariamente. 
+    - model_train_dag.py: Realiza el entrenamiento del modelo XGBoost. Registra el entrenamiento, modelo y resultados de hiperparámetros en MLFlow. Ejecuta diariamente.
+    - generate_baseline.py: Realiza preprocessing y genera .parquet de baseline que utiliza la API para cálculos de riesgos relativos. Ejecuta mensualmente.
+
+    Si bien tanto preprocess_dag como generate_baseline realizan el procesamiento, se consideran dos DAGs distintos porque no se necesita generar el baseline con la misma periodicidad que el preprocesamiento, eficientizando el uso de recursos.
 
 ### **MLflow**
 
@@ -127,7 +131,10 @@ Esto inicia:
 
 ### **3. Ejecutar el pipeline**
 
-Ingresar a Airflow y activar el DAG ` `.
+- Ingresar a Airflow y activar el DAG `baseline_pipeline`, seguido de `training_pipeline`. 
+- Esto registra el modelo en MLFlow, donde se pueden ver las métricas e hiperparámetros del modelo entrenado. 
+- Además, se puede utilizar el modelo vía API (FastAPI) en el endpoint `predict`.
+- Para usuarios menos técnicos, se puede utilizar la interfáz gráfica http://localhost:5173/ donde se selecciona el barrio, día y franja horaria para obtener el nivel de riesgo estimado para los parámetros. 
 
 ------------------------------------------------------------------------
 
@@ -141,14 +148,6 @@ algoritmo de clasificación probabilística). - Generación del score de
 riesgo por zona y franja horaria.
 
 El modelo final se publica automáticamente para que FastAPI lo consuma.
-
-
-------------------------------------------------------------------------
-
-## Mejoras Futuras/Pendientes
-
--   Utilizar storage s3 de minio para almacenar dataset. Hoy lo monta como disco docker. De esta forma el flujo podría consistir en ir agregando esos archivos en el storage para que el modelo se reentrene. 
--   Validación de que MLFlow esté tomando modelos correctos y dejando estos "operativos" al disponer en api. Esto debe involucrar configuración desde MLFlow y también que modelo levanta FastAPI. 
 
 ------------------------------------------------------------------------
 
