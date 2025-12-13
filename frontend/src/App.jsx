@@ -153,8 +153,8 @@ function App() {
 
         {prediccion && (
           <div>
-            <h4>Nivel de Riesgo: {prediccion.prediction.toFixed(2).replace('.', ',')}</h4>
-            <p>Probabilidad estimada: <strong>{(prediccion.prediction * 100).toFixed(1).replace('.', ',')}%</strong></p>
+            <h4>Nivel de Riesgo: {prediccion.risk_score_0_1.toFixed(2).replace('.', ',')}</h4>
+            <p>Probabilidad estimada: <strong>{(prediccion.risk_score_0_1 * 100).toFixed(1).replace('.', ',')}%</strong></p>
           </div>
         )}
       </div>

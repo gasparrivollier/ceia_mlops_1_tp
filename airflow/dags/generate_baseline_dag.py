@@ -14,9 +14,9 @@ default_args = {
 }
 
 with DAG(
-    dag_id="preprocess_pipeline",
+    dag_id="baseline_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",
+    schedule="@monthly",
     catchup=False,
     max_active_runs=1,
     default_args=default_args,
