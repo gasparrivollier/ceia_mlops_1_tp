@@ -10,6 +10,7 @@ import mlflow.xgboost
 from mlflow.models import infer_signature
 from sklearn.model_selection import train_test_split
 from xgboost import DMatrix, train
+import matplotlib.pyplot as plt
 
 # ------------------------------
 #  PATHS
@@ -18,7 +19,7 @@ DATA_PATH = "/opt/airflow/dags/data/processed.parquet"
 MODEL_PARAMS_PATH = "/opt/airflow/dags/models/best_model_params.json"
 EVALS_PATH = "/opt/airflow/dags/models/best_model_evals.json"
 
-# (opcional: copiar modelo local)
+# (copiar modelo local)
 MODEL_PATH = "/opt/airflow/dags/models/best_model.xgb"
 
 # ------------------------------
@@ -55,7 +56,7 @@ def model_train():
     # Preparar parámetros XGBoost
     params = {
         "tree_method": "hist",
-        "device": "cuda",
+        "device": "cpu",
         "objective": "reg:squarederror",
         "eval_metric": "rmse",
         "learning_rate": float(best_params["learning_rate"]),
@@ -97,6 +98,23 @@ def model_train():
 
         # Guardamos curva de entrenamiento
         joblib.dump(evals_result, EVALS_PATH)
+
+        #  Graficar curva de entrenamiento y validación
+        plt.figure(figsize=(8,5))
+        plt.plot(evals_result["train"]["rmse"], label="Train RMSE")
+        plt.plot(evals_result["test"]["rmse"], label="Test RMSE")
+        plt.xlabel("Iteración")
+        plt.ylabel("RMSE")
+        plt.title("Curva de entrenamiento XGBoost")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        curve_path = "training_curve.png"
+        plt.savefig(curve_path)
+        plt.close()
+
+        # Loggear la curva como artifact en MLflow
+        mlflow.log_artifact(curve_path, artifact_path="training_curves")
 
         # ------------------------------
         #  SIGNATURE & INPUT EXAMPLE

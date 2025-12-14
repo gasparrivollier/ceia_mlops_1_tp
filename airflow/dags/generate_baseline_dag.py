@@ -3,20 +3,20 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 import sys
 
-# Agregamos la carpeta de scripts al path de Python
 sys.path.append("/opt/airflow/dags/scripts")
 
-# Importamos la función que hace el trabajo
-from preprocess import load_and_process
+from preprocess import load_and_process as preprocess_main
+from generate_baseline import main as baseline_main
+
 
 default_args = {
     "owner": "airflow",
 }
 
 with DAG(
-    dag_id="preprocess_pipeline",
+    dag_id="baseline_pipeline",
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",   
+    schedule="@monthly",
     catchup=False,
     max_active_runs=1,
     default_args=default_args,
@@ -25,5 +25,12 @@ with DAG(
 
     run_preprocess = PythonOperator(
         task_id="run_preprocess",
-        python_callable=load_and_process,
+        python_callable=preprocess_main,
     )
+
+    generate_baseline = PythonOperator(
+        task_id="generate_baseline",
+        python_callable=baseline_main,
+    )
+
+    run_preprocess >> generate_baseline
